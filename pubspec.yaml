@@ -1,0 +1,23 @@
+name: flutter_code_studio
+description: A mobile code studio — write Dart/Flutter code, preview it live, and build a real APK via GitHub Actions.
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  provider: ^6.1.2       # lightweight state management
+  http: ^1.2.2           # GitHub REST API calls
+  url_launcher: ^6.3.0   # open the finished APK/artifact link
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
