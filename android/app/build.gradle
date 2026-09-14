@@ -1,0 +1,17 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
+android {
+    namespace "com.example.mobile_code_studio"
+    compileSdkVersion flutter.compileSdkVersion
+    defaultConfig {
+        applicationId "com.example.mobile_code_studio"
+        minSdkVersion flutter.minSdkVersion
+        targetSdkVersion flutter.targetSdkVersion
+        versionCode flutterVersionCode.tointeger()
+        versionName flutterVersionName
+    }
+}
