@@ -1,39 +1,40 @@
 name: Build APK
 
-# Must support workflow_dispatch so the app's "Build APK" button can
-# trigger it via POST /repos/{owner}/{repo}/actions/workflows/build_apk.yml/dispatches
 on:
   workflow_dispatch:
 
 jobs:
   build:
+    name: Build APK
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
       - name: Set up Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
+          distribution: 'zulu'
           java-version: '17'
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.19.x'
           channel: 'stable'
+          cache: true
 
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Clean Flutter Project
+        run: flutter clean
+
       - name: Build release APK
         run: flutter build apk --release
 
-      # The app polls this run and then lists its artifacts via
-      # GET /repos/{owner}/{repo}/actions/runs/{run_id}/artifacts
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-apk
+          name: release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
-          retention-days: 7
