@@ -1,40 +1,52 @@
 name: Build APK
 
+# workflow_dispatch => Actions tab par "Run workflow" button aave che (mobile thi pan click kari shakay)
 on:
   workflow_dispatch:
 
 jobs:
   build:
-    name: Build APK
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
       - name: Set up Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: 'temurin'
           java-version: '17'
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.x'
           channel: 'stable'
-          cache: true
+
+      # Aapde repo ma fakt lib/main.dart ane pubspec.yaml j upload karya che,
+      # android/, ios/ jeva platform folders nathi. Aa step ej banave che —
+      # existing files (pubspec.yaml, lib/main.dart) ne overwrite nathi karto.
+      - name: Scaffold missing platform folders
+        run: flutter create --platforms=android .
 
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Clean Flutter Project
-        run: flutter clean
+      - name: Build release APK (auto-retry on transient network errors)
+        run: |
+          for attempt in 1 2 3; do
+            echo "Build attempt $attempt..."
+            flutter build apk --release && break
+            if [ "$attempt" -eq 3 ]; then
+              echo "All 3 attempts failed."
+              exit 1
+            fi
+            echo "Attempt $attempt failed (often a transient Gradle/network glitch) — waiting 20s and retrying..."
+            sleep 20
+          done
 
-      - name: Build release APK
-        run: flutter build apk --release
-
-      - name: Upload APK artifact
+      - name: Upload APK as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: release-apk
+          name: app-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 7
